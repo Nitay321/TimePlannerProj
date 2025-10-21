@@ -1,0 +1,146 @@
+/**
+ * @file Firestore Security Rules for TimePlannerPro Rejuvenated.
+ *
+ * @corePhilosophy This ruleset enforces a project-based security model. All data is nested under
+ *  a /projects/{projectId} path. Access to project files, analysis results, dependencies, and
+ *  environment compatibilities is restricted to authenticated users.  Authorization Independence
+ *  is implemented by storing the project ID in each subcollection document, enabling rules to be written
+ *  without relying on `get()` calls to parent documents.
+ *
+ * @dataStructure The data is organized hierarchically:
+ *  /projects/{projectId}/projectFiles/{projectFileId}
+ *  /projects/{projectId}/analysisResults/{analysisResultId}
+ *  /projects/{projectId}/dependencies/{dependencyId}
+ *  /projects/{projectId}/environmentCompatibilities/{environmentCompatibilityId}
+ *
+ * @keySecurityDecisions
+ *  - All write operations are restricted to authenticated users.
+ *  - Read operations are allowed for authenticated users.
+ *  - Listing project files, analysis results, dependencies, and environment compatibilities
+ *    is allowed for authenticated users within a project.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Secure access to project files.
+     * @path /projects/{projectId}/projectFiles/{projectFileId}
+     * @allow (create) - Authenticated user creates a project file within a project.
+     *          request.auth.uid != null
+     * @allow (get) - Authenticated user reads a project file within a project.
+     *          request.auth.uid != null
+     * @allow (update) - Authenticated user updates a project file within a project.
+     *          request.auth.uid != null and the document exists.
+     * @allow (delete) - Authenticated user deletes a project file within a project.
+     *          request.auth.uid != null and the document exists.
+     * @allow (list) - Authenticated user lists project files within a project.
+     *          request.auth.uid != null
+     * @deny (create) - Unauthenticated user attempts to create a project file.
+     *          request.auth == null
+     * @deny (update) - Unauthenticated user attempts to update a project file.
+     *          request.auth == null
+     * @deny (delete) - Unauthenticated user attempts to delete a project file.
+     *          request.auth == null
+     * @principle Authenticated users can manage project files within a project.
+     */
+    match /projects/{projectId}/projectFiles/{projectFileId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource != null;
+      allow delete: if isSignedIn() && resource != null;
+    }
+
+    /**
+     * @description Secure access to analysis results.
+     * @path /projects/{projectId}/analysisResults/{analysisResultId}
+     * @allow (create) - Authenticated user creates an analysis result within a project.
+     *          request.auth.uid != null
+     * @allow (get) - Authenticated user reads an analysis result within a project.
+     *          request.auth.uid != null
+     * @allow (update) - Authenticated user updates an analysis result within a project.
+     *          request.auth.uid != null and the document exists.
+     * @allow (delete) - Authenticated user deletes an analysis result within a project.
+     *          request.auth.uid != null and the document exists.
+     * @allow (list) - Authenticated user lists analysis results within a project.
+     *          request.auth.uid != null
+     * @deny (create) - Unauthenticated user attempts to create an analysis result.
+     *          request.auth == null
+     * @deny (update) - Unauthenticated user attempts to update an analysis result.
+     *          request.auth == null
+     * @deny (delete) - Unauthenticated user attempts to delete an analysis result.
+     *          request.auth == null
+     * @principle Authenticated users can manage analysis results within a project.
+     */
+    match /projects/{projectId}/analysisResults/{analysisResultId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource != null;
+      allow delete: if isSignedIn() && resource != null;
+    }
+
+    /**
+     * @description Secure access to dependencies.
+     * @path /projects/{projectId}/dependencies/{dependencyId}
+     * @allow (create) - Authenticated user creates a dependency within a project.
+     *          request.auth.uid != null
+     * @allow (get) - Authenticated user reads a dependency within a project.
+     *          request.auth.uid != null
+     * @allow (update) - Authenticated user updates a dependency within a project.
+     *          request.auth.uid != null and the document exists.
+     * @allow (delete) - Authenticated user deletes a dependency within a project.
+     *          request.auth.uid != null and the document exists.
+     * @allow (list) - Authenticated user lists dependencies within a project.
+     *          request.auth.uid != null
+     * @deny (create) - Unauthenticated user attempts to create a dependency.
+     *          request.auth == null
+     * @deny (update) - Unauthenticated user attempts to update a dependency.
+     *          request.auth == null
+     * @deny (delete) - Unauthenticated user attempts to delete a dependency.
+     *          request.auth == null
+     * @principle Authenticated users can manage dependencies within a project.
+     */
+    match /projects/{projectId}/dependencies/{dependencyId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource != null;
+      allow delete: if isSignedIn() && resource != null;
+    }
+
+    /**
+     * @description Secure access to environment compatibilities.
+     * @path /projects/{projectId}/environmentCompatibilities/{environmentCompatibilityId}
+     * @allow (create) - Authenticated user creates an environment compatibility within a project.
+     *          request.auth.uid != null
+     * @allow (get) - Authenticated user reads an environment compatibility within a project.
+     *          request.auth.uid != null
+     * @allow (update) - Authenticated user updates an environment compatibility within a project.
+     *          request.auth.uid != null and the document exists.
+     * @allow (delete) - Authenticated user deletes an environment compatibility within a project.
+     *          request.auth.uid != null and the document exists.
+     * @allow (list) - Authenticated user lists environment compatibilities within a project.
+     *          request.auth.uid != null
+     * @deny (create) - Unauthenticated user attempts to create an environment compatibility.
+     *          request.auth == null
+     * @deny (update) - Unauthenticated user attempts to update an environment compatibility.
+     *          request.auth == null
+     * @deny (delete) - Unauthenticated user attempts to delete an environment compatibility.
+     *          request.auth == null
+     * @principle Authenticated users can manage environment compatibilities within a project.
+     */
+    match /projects/{projectId}/environmentCompatibilities/{environmentCompatibilityId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource != null;
+      allow delete: if isSignedIn() && resource != null;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+  }
+}
