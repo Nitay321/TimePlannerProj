@@ -7,6 +7,7 @@ import { Zap } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Card } from '@/components/ui/card';
 
 export default function AuthLayout({
   children,
@@ -23,18 +24,17 @@ export default function AuthLayout({
     }
   }, [user, loading, router]);
 
-
   return (
-    <div className="w-full min-h-screen flex items-center justify-center">
-      <div className="mx-auto grid w-[350px] gap-6">
-        <div className="grid gap-2 text-center">
-          <Link href="/" className="flex items-center justify-center gap-2 mb-4">
+    <div className="w-full min-h-screen flex items-center justify-center bg-secondary">
+      <Card className="mx-auto w-[380px] p-6 shadow-lg">
+        <div className="grid gap-2 text-center mb-6">
+          <Link href="/" className="flex items-center justify-center gap-2">
             <Zap className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold font-headline">FlowZone</h1>
           </Link>
         </div>
         {children}
-      </div>
+      </Card>
     </div>
   );
 }
