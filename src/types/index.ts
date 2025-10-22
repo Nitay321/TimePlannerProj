@@ -1,69 +1,76 @@
-import type { Timestamp } from 'firebase/firestore';
-
-export type UserProfile = {
+export interface User {
   uid: string;
-  name: string;
-  email: string;
-  createdAt: Timestamp;
-  photoURL?: string;
-  settings?: UserSettings;
-};
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  createdAt: Date;
+}
 
-export type Task = {
+export interface TimePeriod {
+  start: string; // "06:00"
+  end: string;   // "12:00"
+}
+
+export interface UserSettings {
+  theme: 'light' | 'dark' | 'system';
+  defaultView: 'month' | 'week' | 'day';
+  weekStartDay: 0 | 1;
+  timePeriods: {
+    morning: TimePeriod;
+    noon: TimePeriod;
+    afternoon: TimePeriod;
+    evening: TimePeriod;
+    night: TimePeriod;
+  };
+  calendarStartHour: number;
+  calendarEndHour: number;
+  timeIncrement: 15 | 30 | 60;
+  taskTypes: TaskType[];
+}
+
+export interface TaskType {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface Task {
   id: string;
   title: string;
-  description?: string;
-  type: 'school' | 'work' | 'love' | string; // custom type
+  description: string;
+  type: string;
   difficulty: 1 | 2 | 3 | 4 | 5;
-  date: Timestamp | null;
-  startTime: Timestamp | null;
-  endTime: Timestamp | null;
+  date: Date | null;
+  startTime: Date | null;
+  endTime: Date | null;
   isCompleted: boolean;
+  completedAt: Date | null;
   color: string;
   projectId: string | null;
-  createdAt: Timestamp;
-  completedAt: Timestamp | null;
   order: number;
-  taskType: 'task' | 'event' | 'meeting' | 'birthday';
-  isRecurring: boolean;
-  recurrenceRule?: string;
-};
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export type Project = {
+export interface Project {
   id: string;
   name: string;
-  description?: string;
+  description: string;
   color: string;
-  createdAt: Timestamp;
-  taskIds: string[];
+  createdAt: Date;
+  updatedAt: Date;
   isCompleted: boolean;
-};
+  completedAt: Date | null;
+}
 
-export type UserSettings = {
-  timePeriods: {
-    morning: { start: string; end: string };
-    noon: { start:string; end: string };
-    afternoon: { start: string; end: string };
-    evening: { start: string; end: string };
-    night: { start: string; end: string };
-  };
-  calendar: {
-    weekStartDay: 'Sunday' | 'Monday';
-    startHour: number;
-    endHour: number;
-    timeIncrement: 15 | 30 | 60;
-    defaultView: 'Month' | 'Week' | 'Day';
-  };
-  appearance: {
-    theme: 'light' | 'dark' | 'system';
-    accentColor: string;
-    fontSize: 'sm' | 'base' | 'lg';
-    density: 'compact' | 'comfortable';
-  };
-  customTaskTypes: { name: string; color: string }[];
-};
+export type CreateTaskInput = Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completedAt'>;
+export type UpdateTaskInput = Partial<CreateTaskInput>;
 
-export type TimeSlot = {
-  start: Date;
-  end: Date;
-};
+export type CreateProjectInput = Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'completedAt'>;
+export type UpdateProjectInput = Partial<CreateProjectInput>;
+
+export interface TimeSlot {
+  date: Date;
+  startTime: Date;
+  endTime: Date;
+}

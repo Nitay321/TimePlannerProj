@@ -1,8 +1,7 @@
 'use client';
 
 import {
-  auth,
-  db
+  auth
 } from '@/lib/firebase/config';
 import {
   createUserWithEmailAndPassword,
@@ -13,10 +12,9 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import {
-  doc,
-  setDoc,
-  serverTimestamp
-} from 'firebase/firestore';
+  createUserProfile,
+  getUserProfile
+} from '@/lib/services/userService';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -28,20 +26,28 @@ export const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
-    // Create or update user profile in Firestore
-    const userRef = doc(db, 'users', user.uid);
-    await setDoc(userRef, {
-      uid: user.uid,
-      email: user.email,
-      name: user.displayName,
-      photoURL: user.photoURL,
-      createdAt: serverTimestamp(),
-    }, { merge: true });
+    // Check if user profile exists
+    const userProfile = await getUserProfile(user.uid);
 
-    return { user, error: null };
+    if (!userProfile) {
+      // Create user profile if it doesn't exist
+      await createUserProfile({
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName
+      });
+    }
+
+    return {
+      user,
+      error: null
+    };
   } catch (error: any) {
     console.error("Error during Google sign-in:", error);
-    return { user: null, error };
+    return {
+      user: null,
+      error
+    };
   }
 };
 
@@ -54,13 +60,10 @@ export const signUpWithEmail = async (email: string, password: string, name: str
     });
 
     // Create user profile in Firestore
-    const userRef = doc(db, 'users', user.uid);
-    await setDoc(userRef, {
+    await createUserProfile({
       uid: user.uid,
       email: user.email,
-      name: user.displayName,
-      photoURL: user.photoURL,
-      createdAt: serverTimestamp(),
+      displayName: name
     });
 
     return {
