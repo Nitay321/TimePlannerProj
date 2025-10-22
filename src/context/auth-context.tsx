@@ -5,6 +5,7 @@ import { User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { UserProfile } from '@/types';
 import { onAuthStateChanged } from 'firebase/auth';
+import { Timestamp } from 'firebase/firestore';
 
 interface AuthContextType {
   user: FirebaseUser | null;
@@ -18,30 +19,30 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
 });
 
+// This provider's only job is to report the current auth state from onAuthStateChanged.
+// It does not handle the redirect result. That is the layout's job.
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
       if (firebaseUser) {
-        setUser(firebaseUser);
-        // In a real app, you would fetch the user profile from Firestore here
-        // For now, we'll create a mock profile
+        // This is a temporary profile for UI purposes.
+        const creationTime = firebaseUser.metadata.creationTime
+          ? new Date(firebaseUser.metadata.creationTime)
+          : new Date();
         const profile: UserProfile = {
           uid: firebaseUser.uid,
           email: firebaseUser.email || '',
           name: firebaseUser.displayName || 'User',
           photoURL: firebaseUser.photoURL || undefined,
-          createdAt: {
-            seconds: firebaseUser.metadata.creationTime ? new Date(firebaseUser.metadata.creationTime).getTime() / 1000 : Date.now() / 1000,
-            nanoseconds: 0,
-          },
+          createdAt: Timestamp.fromDate(creationTime),
         };
         setUserProfile(profile);
       } else {
-        setUser(null);
         setUserProfile(null);
       }
       setLoading(false);

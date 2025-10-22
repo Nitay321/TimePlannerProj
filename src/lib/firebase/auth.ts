@@ -8,7 +8,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithPopup, // Changed from signInWithRedirect
   signOut as firebaseSignOut,
   updateProfile,
 } from 'firebase/auth';
@@ -25,7 +25,7 @@ export const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
-    // Create user profile in Firestore if it doesn't exist
+    // Create or update user profile in Firestore
     const userRef = doc(db, 'users', user.uid);
     await setDoc(userRef, {
       uid: user.uid,
@@ -33,19 +33,12 @@ export const signInWithGoogle = async () => {
       name: user.displayName,
       photoURL: user.photoURL,
       createdAt: serverTimestamp(),
-    }, {
-      merge: true
-    });
+    }, { merge: true });
 
-    return {
-      user: result.user,
-      error: null
-    };
+    return { user, error: null };
   } catch (error: any) {
-    return {
-      user: null,
-      error
-    };
+    console.error("Error during Google sign-in:", error);
+    return { user: null, error };
   }
 };
 
