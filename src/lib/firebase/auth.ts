@@ -8,7 +8,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup, // Changed from signInWithRedirect
+  signInWithPopup,
   signOut as firebaseSignOut,
   updateProfile,
 } from 'firebase/auth';
@@ -22,6 +22,9 @@ const googleProvider = new GoogleAuthProvider();
 
 export const signInWithGoogle = async () => {
   try {
+    googleProvider.setCustomParameters({
+      prompt: "select_account"
+    });
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 

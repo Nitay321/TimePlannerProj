@@ -11,7 +11,7 @@ import { signInWithEmail, signInWithGoogle, signUpWithEmail } from '@/lib/fireba
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -20,27 +20,17 @@ const loginSchema = z.object({
   password: z.string().min(1, { message: 'Password is required.' }),
 });
 
-const signupSchema = z
-  .object({
-    name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-    email: z.string().email({ message: 'Please enter a valid email.' }),
-    password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
+const signupSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  email: z.string().email({ message: 'Please enter a valid email.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+});
 
 export default function AuthPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [showSignupPassword, setShowSignupPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -56,7 +46,6 @@ export default function AuthPage() {
       name: '',
       email: '',
       password: '',
-      confirmPassword: '',
     },
   });
 
@@ -69,10 +58,10 @@ export default function AuthPage() {
         description: error.message,
         variant: 'destructive',
       });
+      setIsLoading(false);
     } else {
       router.push('/');
     }
-    setIsLoading(false);
   }
 
   async function onSignupSubmit(values: z.infer<typeof signupSchema>) {
@@ -84,6 +73,7 @@ export default function AuthPage() {
         description: error.message,
         variant: 'destructive',
       });
+      setIsLoading(false);
     } else {
       toast({
         title: 'Account created!',
@@ -91,22 +81,21 @@ export default function AuthPage() {
       });
       router.push('/');
     }
-    setIsLoading(false);
   }
-
+  
   async function handleGoogleSignIn() {
     setIsGoogleLoading(true);
     const { error } = await signInWithGoogle();
-    if (error) {
+     if (error) {
       toast({
         title: 'Error with Google sign-in',
         description: error.message,
         variant: 'destructive',
       });
+      setIsGoogleLoading(false);
     } else {
       router.push('/');
     }
-    setIsGoogleLoading(false);
   }
 
   return (
@@ -148,20 +137,9 @@ export default function AuthPage() {
                           Forgot your password?
                         </Link>
                       </div>
-                      <div className="relative">
-                        <FormControl>
-                          <Input type={showLoginPassword ? 'text' : 'password'} {...field} />
-                        </FormControl>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
-                          onClick={() => setShowLoginPassword((prev) => !prev)}
-                        >
-                          {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -214,44 +192,9 @@ export default function AuthPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
-                       <div className="relative">
-                        <FormControl>
-                          <Input type={showSignupPassword ? 'text' : 'password'} {...field} />
-                        </FormControl>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
-                          onClick={() => setShowSignupPassword((prev) => !prev)}
-                        >
-                          {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={signupForm.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <div className="relative">
-                        <FormControl>
-                           <Input type={showConfirmPassword ? 'text' : 'password'} {...field} />
-                        </FormControl>
-                         <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
-                          onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        >
-                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -277,19 +220,12 @@ export default function AuthPage() {
       </div>
       <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isGoogleLoading}>
         {isGoogleLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
-          <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-            <path
-              fill="currentColor"
-              d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 64.5C308.6 106.5 280.2 96 248 96c-88.8 0-160.1 71.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.4z"
-            ></path>
-          </svg>
+            <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 64.5C308.6 106.5 280.2 96 248 96c-88.8 0-160.1 71.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.4z"></path></svg>
         )}
         Google
       </Button>
     </>
   );
 }
-
-    

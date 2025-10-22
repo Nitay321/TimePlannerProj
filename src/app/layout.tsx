@@ -1,19 +1,27 @@
+'use client';
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/context/auth-context';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 
-export const metadata: Metadata = {
-  title: 'FlowZone',
-  description: 'A sophisticated task planner by FlowZone',
-};
+// Add global error listeners for debugging
+if (typeof window !== 'undefined') {
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error("Unhandled Rejection:", event.reason);
+  });
+  window.addEventListener("error", (event) => {
+    console.error("Global Error:", event.error);
+  });
+}
+
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
